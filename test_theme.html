@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Theme Switcher Test - Calamba PopDev</title>
+    <link rel="stylesheet" href="public/css/style.css">
+    <style>
+        .test-container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+        .theme-status {
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+        }
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        .theme-btn {
+            padding: 10px 20px;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+        .theme-btn:hover {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+        .theme-btn.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+    </style>
+</head>
+<body style="background-color: var(--bg-secondary);">
+    <div class="test-container">
+        <div class="card">
+            <div class="card-header">
+                <h2>🎨 Theme Switcher Test</h2>
+            </div>
+            <div class="card-body">
+                <h3>Appearance Settings</h3>
+                <p>Test the light, dark, and auto theme modes:</p>
+                
+                <div class="controls">
+                    <button class="theme-btn" id="light-btn" onclick="setTheme('light')">☀️ Light</button>
+                    <button class="theme-btn" id="dark-btn" onclick="setTheme('dark')">🌙 Dark</button>
+                    <button class="theme-btn" id="auto-btn" onclick="setTheme('auto')">🔄 Auto</button>
+                </div>
+
+                <div class="theme-status">
+                    <h4>Current Status:</h4>
+                    <p><strong>Theme Preference:</strong> <span id="pref">auto</span></p>
+                    <p><strong>Currently Applied:</strong> <span id="applied">light</span></p>
+                    <p><strong>System Preference:</strong> <span id="system">light</span></p>
+                    <button class="btn btn-primary" onclick="updateStatus()">Refresh Status</button>
+                </div>
+
+                <div class="card mt-20">
+                    <div class="card-header">
+                        <h4>Test Elements</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="grid">
+                            <div class="stat-card">
+                                <h4>Sample Stat 1</h4>
+                                <div class="stat-value">42</div>
+                            </div>
+                            <div class="stat-card">
+                                <h4>Sample Stat 2</h4>
+                                <div class="stat-value">88</div>
+                            </div>
+                        </div>
+
+                        <h4 style="margin-top: 20px;">Test Form</h4>
+                        <div class="form-group">
+                            <label>Input Field</label>
+                            <input type="text" placeholder="Type something to test colors...">
+                        </div>
+
+                        <div style="margin-top: 20px;">
+                            <button class="btn btn-primary">Primary Button</button>
+                            <button class="btn btn-secondary">Secondary Button</button>
+                            <button class="btn btn-outline">Outline Button</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Theme Manager
+        class ThemeManager {
+            constructor() {
+                this.STORAGE_KEY = 'calamba-theme-preference';
+            }
+
+            init() {
+                const savedTheme = localStorage.getItem(this.STORAGE_KEY) || 'auto';
+                this.setTheme(savedTheme);
+                
+                // Listen for system theme changes
+                if (window.matchMedia) {
+                    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+                        if (localStorage.getItem(this.STORAGE_KEY) === 'auto') {
+                            this.applyTheme(e.matches ? 'dark' : 'light');
+                            updateStatus();
+                        }
+                    });
+                }
+            }
+
+            setTheme(theme) {
+                localStorage.setItem(this.STORAGE_KEY, theme);
+                
+                if (theme === 'auto') {
+                    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+                    this.applyTheme(prefersDark ? 'dark' : 'light');
+                } else {
+                    this.applyTheme(theme);
+                }
+            }
+
+            applyTheme(theme) {
+                if (theme === 'dark') {
+                    document.documentElement.classList.add('dark-mode');
+                } else {
+                    document.documentElement.classList.remove('dark-mode');
+                }
+            }
+
+            getTheme() {
+                return localStorage.getItem(this.STORAGE_KEY) || 'auto';
+            }
+
+            getCurrentApplied() {
+                return document.documentElement.classList.contains('dark-mode') ? 'dark' : 'light';
+            }
+
+            getSystemPreference() {
+                if (window.matchMedia) {
+                    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+                }
+                return 'unknown';
+            }
+        }
+
+        const themeManager = new ThemeManager();
+
+        function setTheme(theme) {
+            themeManager.setTheme(theme);
+            updateStatus();
+        }
+
+        function updateStatus() {
+            const pref = themeManager.getTheme();
+            const applied = themeManager.getCurrentApplied();
+            const system = themeManager.getSystemPreference();
+
+            document.getElementById('pref').textContent = pref;
+            document.getElementById('applied').textContent = applied;
+            document.getElementById('system').textContent = system;
+
+            // Update button states
+            document.getElementById('light-btn').classList.toggle('active', pref === 'light');
+            document.getElementById('dark-btn').classList.toggle('active', pref === 'dark');
+            document.getElementById('auto-btn').classList.toggle('active', pref === 'auto');
+        }
+
+        // Initialize theme manager and update status
+        themeManager.init();
+        updateStatus();
+    </script>
+</body>
+</html>

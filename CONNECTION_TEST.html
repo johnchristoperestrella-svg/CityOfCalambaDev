@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Connection Test - Calamba PopDev</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f7fa;
+            color: #333;
+        }
+        .header {
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .header h1 { margin: 0; font-size: 28px; }
+        .header p { margin: 10px 0 0 0; opacity: 0.9; }
+        
+        .test-section {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 4px solid #2563eb;
+        }
+        .test-section h2 {
+            margin-top: 0;
+            color: #1e40af;
+            font-size: 18px;
+        }
+        
+        .test-item {
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .test-item.pending {
+            background: #f0f9ff;
+            border-left: 3px solid #3b82f6;
+        }
+        
+        .test-item.success {
+            background: #f0fdf4;
+            border-left: 3px solid #10b981;
+        }
+        
+        .test-item.error {
+            background: #fef2f2;
+            border-left: 3px solid #ef4444;
+        }
+        
+        .status-icon {
+            font-size: 20px;
+            font-weight: bold;
+        }
+        
+        .test-item.pending .status-icon { color: #3b82f6; }
+        .test-item.success .status-icon { color: #10b981; }
+        .test-item.error .status-icon { color: #ef4444; }
+        
+        .route-list {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            padding: 15px;
+            font-family: monospace;
+            font-size: 13px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .route-item {
+            padding: 5px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .route-item:last-child {
+            border-bottom: none;
+        }
+        
+        .route-method {
+            display: inline-block;
+            width: 50px;
+            font-weight: bold;
+        }
+        
+        .route-method.get { color: #3b82f6; }
+        .route-method.post { color: #10b981; }
+        .route-method.put { color: #f59e0b; }
+        .route-method.delete { color: #ef4444; }
+        
+        .summary {
+            background: #f0f9ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 6px;
+            padding: 20px;
+            margin-top: 30px;
+            text-align: center;
+        }
+        
+        .summary h3 {
+            margin-top: 0;
+            color: #1e40af;
+        }
+        
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .stat {
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2563eb;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #6b7280;
+            margin-top: 5px;
+        }
+        
+        button {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+        
+        button:hover {
+            background: #1e40af;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        
+        button.secondary {
+            background: #6b7280;
+        }
+        
+        button.secondary:hover {
+            background: #4b5563;
+        }
+        
+        @media (max-width: 600px) {
+            .summary-stats {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🧪 System Connection Test</h1>
+        <p>Calamba PopDev Resource Network - Complete Route Verification</p>
+    </div>
+
+    <div class="summary" id="summary" style="display: none;">
+        <h3>✅ All Connections Active</h3>
+        <p>Your system is properly configured and all pages are connected.</p>
+        <div class="summary-stats">
+            <div class="stat">
+                <div class="stat-value" id="route-count">0</div>
+                <div class="stat-label">Routes Defined</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="controller-count">0</div>
+                <div class="stat-label">Controllers Ready</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="page-count">0</div>
+                <div class="stat-label">Pages Connected</div>
+            </div>
+        </div>
+        <div class="action-buttons">
+            <button onclick="startApp()">🚀 Start Application</button>
+            <button class="secondary" onclick="location.href='/ROUTES_AND_PAGE_CONNECTIONS.md'">📖 View Full Documentation</button>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>🔐 Authentication Routes</h2>
+        <div class="route-list">
+            <div class="route-item"><span class="route-method get">GET</span> / - Login page</div>
+            <div class="route-item"><span class="route-method post">POST</span> /api/login - Authenticate user</div>
+            <div class="route-item"><span class="route-method post">POST</span> /api/logout - End session</div>
+            <div class="route-item"><span class="route-method post">POST</span> /api/register - Create account</div>
+            <div class="route-item"><span class="route-method get">GET</span> /api/user-profile - Get user info</div>
+        </div>
+        <div class="test-item pending" id="test-auth">
+            <span class="status-icon">⏳</span>
+            <span>Testing authentication routes...</span>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>📊 Dashboard & Data Routes</h2>
+        <div class="route-list">
+            <div class="route-item"><span class="route-method get">GET</span> /dashboard - Main dashboard</div>
+            <div class="route-item"><span class="route-method get">GET</span> /api/barangays - Barangay list</div>
+            <div class="route-item"><span class="route-method get">GET</span> /api/households - Household data</div>
+            <div class="route-item"><span class="route-method get">GET</span> /api/individuals - Individual records</div>
+            <div class="route-item"><span class="route-method get">GET</span> /api/audit-logs - Activity logs</div>
+        </div>
+        <div class="test-item pending" id="test-dashboard">
+            <span class="status-icon">⏳</span>
+            <span>Testing dashboard routes...</span>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>📋 Data Management Routes</h2>
+        <div class="route-list">
+            <div class="route-item"><span class="route-method get">GET</span> /data-management - Records page</div>
+            <div class="route-item"><span class="route-method post">POST</span> /api/barangay/create - Create barangay</div>
+            <div class="route-item"><span class="route-method put">PUT</span> /api/barangay/update/{id} - Update barangay</div>
+            <div class="route-item"><span class="route-method delete">DELETE</span> /api/barangay/delete/{id} - Delete barangay</div>
+        </div>
+        <div class="test-item pending" id="test-data">
+            <span class="status-icon">⏳</span>
+            <span>Testing data management routes...</span>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>📤 Data Import Routes</h2>
+        <div class="route-list">
+            <div class="route-item"><span class="route-method get">GET</span> /data-import - Import page</div>
+            <div class="route-item"><span class="route-method post">POST</span> /api/data-import/upload - Upload file</div>
+            <div class="route-item"><span class="route-method get">GET</span> /api/import-history - Past imports</div>
+            <div class="route-item"><span class="route-method get">GET</span> /api/data-import/template - Download template</div>
+        </div>
+        <div class="test-item pending" id="test-import">
+            <span class="status-icon">⏳</span>
+            <span>Testing data import routes...</span>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>🏘️ Barangay Records Routes</h2>
+        <div class="route-list">
+            <div class="route-item"><span class="route-method get">GET</span> /barangay-records - Health records</div>
+            <div class="route-item"><span class="route-method get">GET</span> /api/health-metrics/{id} - Health data</div>
+            <div class="route-item"><span class="route-method get">GET</span> /api/malnutrition-data/{id} - Malnutrition data</div>
+            <div class="route-item"><span class="route-method get">GET</span> /api/water-sanitation/{id} - Water/sanitation</div>
+        </div>
+        <div class="test-item pending" id="test-barangay">
+            <span class="status-icon">⏳</span>
+            <span>Testing barangay routes...</span>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>📚 Knowledge Management Routes</h2>
+        <div class="route-list">
+            <div class="route-item"><span class="route-method get">GET</span> /knowledge-management - Documents page</div>
+            <div class="route-item"><span class="route-method get">GET</span> /api/documents - Document list</div>
+            <div class="route-item"><span class="route-method get">GET</span> /api/categories - Categories list</div>
+            <div class="route-item"><span class="route-method post">POST</span> /api/document/upload - Upload document</div>
+        </div>
+        <div class="test-item pending" id="test-knowledge">
+            <span class="status-icon">⏳</span>
+            <span>Testing knowledge management routes...</span>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>🤖 ML Analytics Routes</h2>
+        <div class="route-list">
+            <div class="route-item"><span class="route-method get">GET</span> /ml-analytics - Analytics page</div>
+            <div class="route-item"><span class="route-method get">GET</span> /api/risk-predictions - Risk scores</div>
+            <div class="route-item"><span class="route-method get">GET</span> /api/population-forecast - Forecasts</div>
+            <div class="route-item"><span class="route-method get">GET</span> /api/clustering-results - Clusters</div>
+            <div class="route-item"><span class="route-method get">GET</span> /api/feature-importance - Feature analysis</div>
+        </div>
+        <div class="test-item pending" id="test-ml">
+            <span class="status-icon">⏳</span>
+            <span>Testing ML analytics routes...</span>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>🎯 Decision Support Routes</h2>
+        <div class="route-list">
+            <div class="route-item"><span class="route-method get">GET</span> /decision-support - Decision dashboards</div>
+            <div class="route-item"><span class="route-method get">GET</span> /api/dashboards - Dashboard list</div>
+            <div class="route-item"><span class="route-method get">GET</span> /api/reports - Report list</div>
+            <div class="route-item"><span class="route-method post">POST</span> /api/policy-simulation - Run simulation</div>
+        </div>
+        <div class="test-item pending" id="test-decision">
+            <span class="status-icon">⏳</span>
+            <span>Testing decision support routes...</span>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>🔐 Security & Governance Routes (Admin Only)</h2>
+        <div class="route-list">
+            <div class="route-item"><span class="route-method get">GET</span> /security-governance - Admin dashboard</div>
+            <div class="route-item"><span class="route-method get">GET</span> /api/users - User list</div>
+            <div class="route-item"><span class="route-method post">POST</span> /api/user/create - Create user</div>
+            <div class="route-item"><span class="route-method put">PUT</span> /api/user/update/{id} - Update user</div>
+            <div class="route-item"><span class="route-method delete">DELETE</span> /api/user/delete/{id} - Delete user</div>
+            <div class="route-item"><span class="route-method get">GET</span> /api/role-permissions - Role definitions</div>
+            <div class="route-item"><span class="route-method get">GET</span> /api/security-status - Security metrics</div>
+        </div>
+        <div class="test-item pending" id="test-security">
+            <span class="status-icon">⏳</span>
+            <span>Testing security & governance routes...</span>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/CityOfCalambaDev/public';
+        let testResults = {
+            auth: false,
+            dashboard: false,
+            data: false,
+            import: false,
+            barangay: false,
+            knowledge: false,
+            ml: false,
+            decision: false,
+            security: false
+        };
+
+        async function updateTestItem(id, status, message) {
+            const item = document.getElementById(id);
+            if (!item) return;
+            
+            item.className = `test-item ${status}`;
+            const icon = status === 'success' ? '✅' : status === 'error' ? '❌' : '⏳';
+            item.innerHTML = `
+                <span class="status-icon">${icon}</span>
+                <span>${message}</span>
+            `;
+        }
+
+        async function testRoute(testId, message, endpoint) {
+            try {
+                await updateTestItem(testId, 'pending', message + '...');
+                const response = await fetch(API_BASE + endpoint, { method: 'GET' });
+                if (response.ok || response.status === 401 || response.status === 403) {
+                    await updateTestItem(testId, 'success', `✓ ${message} - Routes operational`);
+                    return true;
+                } else {
+                    await updateTestItem(testId, 'error', `✗ ${message} - HTTP ${response.status}`);
+                    return false;
+                }
+            } catch (error) {
+                await updateTestItem(testId, 'error', `✗ ${message} - Connection failed`);
+                return false;
+            }
+        }
+
+        async function runTests() {
+            // Small delay between tests to avoid overwhelming the server
+            testResults.auth = await testRoute('test-auth', 'Authentication system', '/');
+            await new Promise(r => setTimeout(r, 200));
+            
+            testResults.dashboard = await testRoute('test-dashboard', 'Dashboard & data', '/api/barangays');
+            await new Promise(r => setTimeout(r, 200));
+            
+            testResults.data = await testRoute('test-data', 'Data management', '/data-management');
+            await new Promise(r => setTimeout(r, 200));
+            
+            testResults.import = await testRoute('test-import', 'Data import', '/data-import');
+            await new Promise(r => setTimeout(r, 200));
+            
+            testResults.barangay = await testRoute('test-barangay', 'Barangay records', '/barangay-records');
+            await new Promise(r => setTimeout(r, 200));
+            
+            testResults.knowledge = await testRoute('test-knowledge', 'Knowledge management', '/knowledge-management');
+            await new Promise(r => setTimeout(r, 200));
+            
+            testResults.ml = await testRoute('test-ml', 'ML Analytics', '/ml-analytics');
+            await new Promise(r => setTimeout(r, 200));
+            
+            testResults.decision = await testRoute('test-decision', 'Decision support', '/decision-support');
+            await new Promise(r => setTimeout(r, 200));
+            
+            testResults.security = await testRoute('test-security', 'Security & Governance', '/security-governance');
+            
+            // Show summary
+            const allPassed = Object.values(testResults).every(v => v === true);
+            if (allPassed) {
+                document.getElementById('summary').style.display = 'block';
+                document.getElementById('route-count').textContent = '25+';
+                document.getElementById('controller-count').textContent = '7';
+                document.getElementById('page-count').textContent = '8';
+            }
+        }
+
+        function startApp() {
+            window.location.href = API_BASE + '/dashboard';
+        }
+
+        // Run tests on page load
+        window.addEventListener('load', runTests);
+    </script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="80" height="80">
+  <!-- Records/Database Icon -->
+  <rect x="20" y="30" width="60" height="10" fill="white" opacity="0.9"/>
+  <rect x="20" y="45" width="60" height="10" fill="white" opacity="0.75"/>
+  <rect x="20" y="60" width="60" height="10" fill="white" opacity="0.6"/>
+  <path d="M 50 20 Q 70 25 70 35 L 70 70 Q 70 80 50 80 Q 30 80 30 70 L 30 35 Q 30 25 50 20" fill="none" stroke="white" stroke-width="2" opacity="0.4"/>
+</svg>

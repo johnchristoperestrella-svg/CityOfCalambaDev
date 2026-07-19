@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Burger Icon Position Test</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: var(--bg-secondary);
+            font-family: inherit;
+        }
+        
+        .test-container {
+            max-width: 100%;
+            background: var(--bg-primary);
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 20px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin-bottom: 40px;
+            gap: 12px;
+        }
+        
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .topbar-title h1 {
+            font-size: 26px;
+            color: var(--text-primary);
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            margin: 0;
+        }
+        
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .sidebar-toggle {
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.1), rgba(30, 64, 175, 0.1));
+            border: 1px solid rgba(37, 99, 235, 0.3);
+            color: var(--primary-color);
+            font-size: 22px;
+            cursor: pointer;
+            padding: 8px 12px;
+            margin-right: 0;
+            z-index: 1001;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 6px;
+            min-width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            line-height: 1;
+            flex-shrink: 0;
+        }
+        
+        .sidebar-toggle:hover {
+            background: rgba(37, 99, 235, 0.15);
+            color: var(--primary-color);
+            transform: scale(1.08);
+            border-color: rgba(37, 99, 235, 0.5);
+            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.15);
+        }
+        
+        .user-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 15px;
+            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
+        }
+        
+        h2 {
+            color: var(--text-primary);
+            margin-top: 40px;
+            margin-bottom: 20px;
+        }
+        
+        .info {
+            background: rgba(37, 99, 235, 0.08);
+            border: 1px solid rgba(37, 99, 235, 0.2);
+            border-left: 4px solid var(--primary-color);
+            padding: 15px 20px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            color: var(--text-primary);
+        }
+        
+        .responsive-test {
+            margin-top: 40px;
+        }
+        
+        .device-frame {
+            margin: 20px 0;
+            border: 8px solid #333;
+            border-radius: 20px;
+            overflow: hidden;
+            background: #000;
+        }
+        
+        .device-screen {
+            background: var(--bg-secondary);
+            padding: 0;
+        }
+        
+        .mobile-frame {
+            width: 375px;
+            height: 667px;
+        }
+        
+        .desktop-frame {
+            width: 100%;
+            height: 300px;
+        }
+        
+        @media (max-width: 768px) {
+            .topbar-left {
+                gap: 8px;
+            }
+            
+            .topbar-title h1 {
+                font-size: 18px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            
+            .sidebar-toggle {
+                font-size: 18px;
+                padding: 6px 10px;
+                min-width: 36px;
+                height: 36px;
+                margin-right: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🍔 Burger Icon Position Test</h1>
+        
+        <div class="info">
+            <strong>✓ Status:</strong> Burger icon (☰) is now positioned BEFORE the "Calamba PopDev Resource Network" title in the top-left corner.
+        </div>
+        
+        <h2>Desktop View (>768px):</h2>
+        <div class="topbar">
+            <div class="topbar-left">
+                <button class="sidebar-toggle" title="Toggle Menu">☰</button>
+                <div class="topbar-title">
+                    <h1>Calamba PopDev Resource Network</h1>
+                </div>
+            </div>
+            <div class="topbar-right">
+                <div class="user-avatar">A</div>
+            </div>
+        </div>
+        
+        <h2>Mobile View (≤768px):</h2>
+        <div class="device-frame mobile-frame">
+            <div class="device-screen">
+                <div class="topbar" style="gap: 8px; padding: 12px 15px;">
+                    <div class="topbar-left" style="gap: 8px;">
+                        <button class="sidebar-toggle" title="Toggle Menu" style="font-size: 18px; padding: 6px 10px; min-width: 36px; height: 36px;">☰</button>
+                        <div class="topbar-title">
+                            <h1 style="font-size: 18px;">Calamba PopDev Resource Network</h1>
+                        </div>
+                    </div>
+                    <div class="topbar-right" style="gap: 8px;">
+                        <div class="user-avatar" style="width: 36px; height: 36px; font-size: 13px;">A</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <h2>Layout Structure:</h2>
+        <pre style="background: var(--bg-secondary); padding: 15px; border-radius: 6px; overflow-x: auto; color: var(--text-primary);">
+&lt;div class="topbar"&gt;
+  &lt;div class="topbar-left"&gt;
+    &lt;button class="sidebar-toggle"&gt;☰&lt;/button&gt;  &lt;!-- Burger icon --&gt;
+    &lt;div class="topbar-title"&gt;
+      &lt;h1&gt;Calamba PopDev Resource Network&lt;/h1&gt;  &lt;!-- Title --&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class="topbar-right"&gt;
+    &lt;!-- User avatar, etc. --&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</pre>
+        
+        <h2>CSS Changes Applied:</h2>
+        <div class="info">
+            <strong>✓ .sidebar-toggle:</strong><br>
+            - display: flex (visible on all screens)<br>
+            - margin-right: 0 (uses flexbox gap spacing)<br>
+            - flex-shrink: 0 (prevents shrinking)<br>
+            - Positioned BEFORE title in HTML<br>
+            <br>
+            <strong>✓ .topbar-left:</strong><br>
+            - display: flex with gap: 12px (desktop) / 8px (mobile)<br>
+            - align-items: center (vertical centering)<br>
+            <br>
+            <strong>✓ Mobile Media Query:</strong><br>
+            - display: flex !important (ensures visibility)<br>
+            - Smaller button size for mobile (36x36px)
+        </div>
+        
+        <div style="margin-top: 40px; padding: 20px; background: rgba(16, 185, 129, 0.08); border-left: 4px solid #10b981; border-radius: 6px; color: var(--text-primary);">
+            <strong>✓ Status: READY FOR TESTING</strong><br>
+            The burger icon is now correctly positioned beside the "Calamba PopDev Resource Network" title on all screen sizes. 
+            Try hovering over the icon to see the hover effect (scale + shadow).
+        </div>
+    </div>
+</body>
+</html>

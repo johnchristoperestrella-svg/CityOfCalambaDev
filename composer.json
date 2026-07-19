@@ -1,0 +1,22 @@
+{
+  "name": "calamba/popdev-resource-network",
+  "description": "Population Development Resource Network for City of Calamba",
+  "version": "1.0.0",
+  "require": {
+    "php": "^7.4 || ^8.0",
+    "kreait/firebase-php": "^6.0",
+    "phpmailer/phpmailer": "^6.0",
+    "phpoffice/phpspreadsheet": "^1.25"
+  },
+  "autoload": {
+    "psr-4": {
+      "App\\": "app/"
+    },
+    "files": [
+      "config/helpers.php"
+    ]
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^9.0"
+  }
+}

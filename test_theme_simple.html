@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Theme Switcher Test - Calamba PopDev</title>
+    <link rel="stylesheet" href="public/css/style.css">
+</head>
+<body style="background-color: var(--bg-secondary); padding: 20px;">
+    <div class="card" style="max-width: 600px; margin: 0 auto;">
+        <div class="card-header">
+            <h2>🎨 Theme Switcher Test</h2>
+        </div>
+        <div class="card-body">
+            <h3>Test the Appearance Settings</h3>
+            <p>Click the buttons below to switch between light, dark, and auto modes.</p>
+            
+            <div style="display: flex; gap: 10px; margin: 20px 0; flex-wrap: wrap;">
+                <button class="btn btn-primary" id="light-btn">☀️ Light</button>
+                <button class="btn btn-secondary" id="dark-btn">🌙 Dark</button>
+                <button class="btn btn-outline" id="auto-btn">🔄 Auto</button>
+            </div>
+
+            <div style="padding: 15px; border-radius: 8px; background: var(--bg-secondary); border: 1px solid var(--border-color); margin: 20px 0;">
+                <h4>Status:</h4>
+                <p><strong>Theme Preference:</strong> <span id="pref">auto</span></p>
+                <p><strong>Currently Applied:</strong> <span id="applied">light</span></p>
+                <p><strong>System Preference:</strong> <span id="system">light</span></p>
+            </div>
+
+            <div class="grid" style="margin-top: 30px;">
+                <div class="stat-card">
+                    <h4>Test Card 1</h4>
+                    <div class="stat-value">42</div>
+                </div>
+                <div class="stat-card">
+                    <h4>Test Card 2</h4>
+                    <div class="stat-value">88</div>
+                </div>
+            </div>
+
+            <div style="margin-top: 20px;">
+                <label>Test Input Field</label>
+                <input type="text" placeholder="Type something to test colors...">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Theme Manager
+        class ThemeManager {
+            constructor() {
+                this.STORAGE_KEY = 'calamba-theme-preference';
+            }
+
+            init() {
+                const savedTheme = localStorage.getItem(this.STORAGE_KEY) || 'auto';
+                this.setTheme(savedTheme);
+                
+                // Listen for system theme changes
+                if (window.matchMedia) {
+                    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+                        if (localStorage.getItem(this.STORAGE_KEY) === 'auto') {
+                            this.applyTheme(e.matches ? 'dark' : 'light');
+                            updateStatus();
+                        }
+                    });
+                }
+            }
+
+            setTheme(theme) {
+                localStorage.setItem(this.STORAGE_KEY, theme);
+                
+                if (theme === 'auto') {
+                    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+                    this.applyTheme(prefersDark ? 'dark' : 'light');
+                } else {
+                    this.applyTheme(theme);
+                }
+            }
+
+            applyTheme(theme) {
+                if (theme === 'dark') {
+                    document.documentElement.classList.add('dark-mode');
+                } else {
+                    document.documentElement.classList.remove('dark-mode');
+                }
+            }
+
+            getTheme() {
+                return localStorage.getItem(this.STORAGE_KEY) || 'auto';
+            }
+
+            getCurrentApplied() {
+                return document.documentElement.classList.contains('dark-mode') ? 'dark' : 'light';
+            }
+
+            getSystemPreference() {
+                if (window.matchMedia) {
+                    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+                }
+                return 'unknown';
+            }
+        }
+
+        const themeManager = new ThemeManager();
+
+        function updateStatus() {
+            const pref = themeManager.getTheme();
+            const applied = themeManager.getCurrentApplied();
+            const system = themeManager.getSystemPreference();
+
+            document.getElementById('pref').textContent = pref;
+            document.getElementById('applied').textContent = applied;
+            document.getElementById('system').textContent = system;
+
+            // Update button states
+            document.getElementById('light-btn').classList.toggle('active', pref === 'light');
+            document.getElementById('dark-btn').classList.toggle('active', pref === 'dark');
+            document.getElementById('auto-btn').classList.toggle('active', pref === 'auto');
+        }
+
+        // Set up event listeners
+        document.getElementById('light-btn').addEventListener('click', () => {
+            themeManager.setTheme('light');
+            updateStatus();
+        });
+
+        document.getElementById('dark-btn').addEventListener('click', () => {
+            themeManager.setTheme('dark');
+            updateStatus();
+        });
+
+        document.getElementById('auto-btn').addEventListener('click', () => {
+            themeManager.setTheme('auto');
+            updateStatus();
+        });
+
+        // Initialize and update on page load
+        themeManager.init();
+        updateStatus();
+    </script>
+</body>
+</html>
