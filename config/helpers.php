@@ -13,10 +13,13 @@ if (!function_exists('env')) {
         // Load .env file once on first call
         if ($envCache === null) {
             $envCache = [];
-            $envFile = __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '.env';
+            $envFile = realpath(__DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '.env');
             
-            if (!file_exists($envFile)) {
-                return $default;
+            if (!$envFile || !file_exists($envFile)) {
+                // If there's no .env file, fall back to system environment variables
+                $envCache = [];
+                $envVal = getenv($key);
+                return $envVal !== false ? $envVal : $default;
             }
             
             // Parse .env file once and store in static cache
@@ -30,18 +33,50 @@ if (!function_exists('env')) {
             }
         }
         
-        // Return from cache (0.1ms vs 10ms+ file read)
-        return isset($envCache[$key]) ? $envCache[$key] : $default;
+        // Prefer runtime environment variables first, including empty values.
+        $envVal = getenv($key);
+        if ($envVal !== false) {
+            return $envVal;
+        }
+
+        // Railway uses MYSQL_* environment variables by default.
+        $railwayMap = [
+            'DB_HOST' => 'MYSQL_HOST',
+            'DB_PORT' => 'MYSQL_PORT',
+            'DB_DATABASE' => 'MYSQL_DATABASE',
+            'DB_USERNAME' => 'MYSQL_USERNAME',
+            'DB_PASSWORD' => 'MYSQL_PASSWORD',
+        ];
+
+        if (isset($railwayMap[$key])) {
+            $railwayVal = getenv($railwayMap[$key]);
+            if ($railwayVal !== false) {
+                return $railwayVal;
+            }
+        }
+
+        // Fall back to project .env values only if no environment variable exists.
+        if (isset($envCache[$key])) {
+            return $envCache[$key];
+        }
+
+        return $default;
     }
 }
 
 if (!function_exists('base_path')) {
     function base_path($path = '') {
-        $basePath = __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR;
-        if ($path) {
-            return $basePath . str_replace('/', DIRECTORY_SEPARATOR, $path);
+        $basePath = realpath(__DIR__ . DIRECTORY_SEPARATOR . '..');
+        if ($basePath === false) {
+            $basePath = __DIR__ . DIRECTORY_SEPARATOR . '..';
         }
-        return rtrim($basePath, DIRECTORY_SEPARATOR);
+        $basePath = rtrim($basePath, DIRECTORY_SEPARATOR);
+
+        if ($path) {
+            $path = ltrim(str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $path), DIRECTORY_SEPARATOR);
+            return $basePath . DIRECTORY_SEPARATOR . $path;
+        }
+        return $basePath;
     }
 }
 

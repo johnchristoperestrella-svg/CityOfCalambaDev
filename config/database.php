@@ -27,7 +27,8 @@ class Database {
                 $this->config['host'],
                 $this->config['username'],
                 $this->config['password'],
-                $this->config['database']
+                $this->config['database'],
+                $this->config['port']
             );
 
             if ($this->connection->connect_error) {

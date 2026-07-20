@@ -1,27 +1,32 @@
-FROM php:8.2-apache
+FROM php:8.4-apache
 
-# Enable Apache mod_rewrite for routing
-RUN a2enmod rewrite
+# Install required system dependencies and extensions. The official PHP Apache
+# image already enables its compatible MPM; do not manipulate MPM modules here.
+# Enabling another one prevents Apache from starting.
+RUN apt-get update \
+    && apt-get install -y libzip-dev unzip git zlib1g-dev libpng-dev libjpeg-dev libfreetype6-dev libwebp-dev libonig-dev \
+    && a2enmod rewrite \
+    && docker-php-ext-configure gd --with-jpeg --with-freetype --with-webp \
+    && docker-php-ext-install pdo pdo_mysql mysqli zip gd \
+    && rm -rf /var/lib/apt/lists/*
 
-# Install required extensions
-RUN docker-php-ext-install pdo pdo_mysql mysqli
+# Install Composer
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Set working directory
 WORKDIR /app
 
-# Copy project files
+# Copy only dependency metadata first for build caching
+COPY composer.json composer.lock ./
+RUN composer install --no-dev --optimize-autoloader --no-interaction
+
+# Copy the application files
 COPY . /app
 
-# Set Apache document root to public folder
+# Set Apache document root to the public folder
 ENV APACHE_DOCUMENT_ROOT=/app/public
-RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
-RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
+RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf \
+    && sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf \
+    && apache2ctl configtest
 
-# Create .htaccess for routing if needed
-RUN echo "<IfModule mod_rewrite.c>\n  RewriteEngine On\n  RewriteBase /\n  RewriteRule ^index\\.php$ - [L]\n  RewriteCond %{REQUEST_FILENAME} !-f\n  RewriteCond %{REQUEST_FILENAME} !-d\n  RewriteRule . /index.php [L]\n</IfModule>" > /app/public/.htaccess || true
-
-# Expose port
 EXPOSE 80
-
-# Start Apache
 CMD ["apache2-foreground"]
