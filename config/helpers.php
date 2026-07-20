@@ -3,35 +3,62 @@
  * Helper Functions
  */
 
-// OPTIMIZED: Cache .env file parsing - 99% faster than re-reading file each call
+// OPTIMIZED: Cache environment variables - reads from Railway env vars FIRST, then .env as fallback
 if (!function_exists('env')) {
     static $envCache = null;
     
     function env($key, $default = null) {
         global $envCache;
         
-        // Load .env file once on first call
+        // Initialize cache on first call
         if ($envCache === null) {
             $envCache = [];
-            $envFile = __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '.env';
-            
-            if (!file_exists($envFile)) {
-                return $default;
+        }
+        
+        // Return from cache if already loaded
+        if (isset($envCache[$key])) {
+            return $envCache[$key];
+        }
+        
+        // FIRST: Check Railway's injected environment variables
+        $value = getenv($key);
+        if ($value !== false) {
+            $envCache[$key] = $value;
+            return $value;
+        }
+        
+        // SECOND: Check $_ENV (PHP's environment variables)
+        if (isset($_ENV[$key])) {
+            $envCache[$key] = $_ENV[$key];
+            return $_ENV[$key];
+        }
+        
+        // THIRD: Fall back to .env file for local development
+        $envFile = __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '.env';
+        if (file_exists($envFile)) {
+            // Parse .env file once and cache all values
+            static $envFileParsed = false;
+            if (!$envFileParsed) {
+                $lines = file($envFile);
+                foreach ($lines as $line) {
+                    $line = trim($line);
+                    if ($line && strpos($line, '=') !== false && strpos($line, '#') !== 0) {
+                        list($envKey, $envValue) = explode('=', $line, 2);
+                        $envCache[trim($envKey)] = trim($envValue);
+                    }
+                }
+                $envFileParsed = true;
             }
             
-            // Parse .env file once and store in static cache
-            $lines = file($envFile);
-            foreach ($lines as $line) {
-                $line = trim($line);
-                if ($line && strpos($line, '=') !== false && strpos($line, '#') !== 0) {
-                    list($envKey, $envValue) = explode('=', $line, 2);
-                    $envCache[trim($envKey)] = trim($envValue);
-                }
+            // Return .env value if it exists
+            if (isset($envCache[$key])) {
+                return $envCache[$key];
             }
         }
         
-        // Return from cache (0.1ms vs 10ms+ file read)
-        return isset($envCache[$key]) ? $envCache[$key] : $default;
+        // Return default if nothing found
+        $envCache[$key] = $default;
+        return $default;
     }
 }
 
@@ -254,3 +281,4 @@ if (!function_exists('is_sidebar_visible_for_role')) {
         return true;
     }
 }
+
