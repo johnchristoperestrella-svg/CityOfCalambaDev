@@ -11,15 +11,25 @@ ini_set('display_errors', 0);
 // Define base path
 define('BASE_PATH', __DIR__);
 
+require_once __DIR__ . '/config/helpers.php';
+
 // Try to connect without database first to create it
-$host = '127.0.0.1';
-$username = 'root';
-$password = '';
+$host = env('DB_HOST', env('MYSQL_HOST', '127.0.0.1'));
+$port = env('DB_PORT', env('MYSQL_PORT', 3306));
+$username = env('DB_USERNAME', env('MYSQL_USERNAME', 'root'));
+$password = env('DB_PASSWORD', env('MYSQL_PASSWORD', ''));
+$dbName = env('DB_DATABASE', env('MYSQL_DATABASE', 'calamba_popdev'));
+
+if (empty($host) || empty($username)) {
+    die("Error: Database host and username must be configured.\n");
+}
 
 echo "Setting up database...\n";
 
+echo "Using host: {$host}:{$port}\n";
+
 // Connect to MySQL server (without specifying a database)
-$serverConnection = @new mysqli($host, $username, $password);
+$serverConnection = @new mysqli($host, $username, $password, '', (int) $port);
 
 if ($serverConnection->connect_error) {
     die("Error: Could not connect to MySQL server. Make sure MySQL/MariaDB is running.\n");
@@ -28,7 +38,6 @@ if ($serverConnection->connect_error) {
 echo "Connected to MySQL server.\n";
 
 // Create database
-$dbName = 'calamba_popdev';
 $createDbSQL = "CREATE DATABASE IF NOT EXISTS `$dbName` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci";
 
 if ($serverConnection->query($createDbSQL)) {
@@ -40,7 +49,7 @@ if ($serverConnection->query($createDbSQL)) {
 $serverConnection->close();
 
 // Now connect to the database
-$connection = @new mysqli($host, $username, $password, $dbName);
+$connection = @new mysqli($host, $username, $password, $dbName, (int) $port);
 
 if ($connection->connect_error) {
     die("Error: Could not connect to database '$dbName'. " . $connection->connect_error . "\n");
