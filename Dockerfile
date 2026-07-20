@@ -22,10 +22,12 @@ RUN composer install --no-dev --optimize-autoloader --no-interaction
 # Copy the application files
 COPY . /app
 
-# Set Apache document root to the public folder
+# Set Apache document root to the public folder and allow index.php to be served
 ENV APACHE_DOCUMENT_ROOT=/app/public
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf \
     && sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf \
+    && printf '<Directory /app/public>\n    Options Indexes FollowSymLinks\n    AllowOverride All\n    Require all granted\n</Directory>\n' > /etc/apache2/conf-available/app.conf \
+    && a2enconf app \
     && apache2ctl configtest
 
 EXPOSE 80

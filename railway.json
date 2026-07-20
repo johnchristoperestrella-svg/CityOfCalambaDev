@@ -4,6 +4,6 @@
     "builder": "dockerfile"
   },
   "deploy": {
-    "startCommand": "bash -lc 'rm -f /etc/apache2/mods-enabled/mpm_event.load /etc/apache2/mods-enabled/mpm_event.conf /etc/apache2/mods-enabled/mpm_worker.load /etc/apache2/mods-enabled/mpm_worker.conf && a2enmod mpm_prefork rewrite >/dev/null && sed -ri \"s/^Listen 80$/Listen 8000/\" /etc/apache2/ports.conf && sed -ri \"s/<VirtualHost \\*:80>/<VirtualHost *:8000>/\" /etc/apache2/sites-enabled/000-default.conf && exec apache2-foreground'"
+    "startCommand": "bash -lc 'rm -f /etc/apache2/mods-enabled/mpm_event.load /etc/apache2/mods-enabled/mpm_event.conf /etc/apache2/mods-enabled/mpm_worker.load /etc/apache2/mods-enabled/mpm_worker.conf && a2enmod mpm_prefork rewrite >/dev/null && printf \"<Directory /app/public>\\n    Options Indexes FollowSymLinks\\n    AllowOverride All\\n    Require all granted\\n</Directory>\\n\" > /etc/apache2/conf-available/app.conf && a2enconf app >/dev/null && sed -ri \"s/^Listen 80$/Listen 8000/\" /etc/apache2/ports.conf && sed -ri \"s/<VirtualHost \\*:80>/<VirtualHost *:8000>/\" /etc/apache2/sites-enabled/000-default.conf && exec apache2-foreground'"
   }
 }
