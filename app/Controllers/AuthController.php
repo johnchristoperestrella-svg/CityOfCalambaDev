@@ -40,7 +40,13 @@ class AuthController {
         $user = $this->userModel->findByEmail($email);
 
         if (!$user || !password_verify($password, $user['password'])) {
-            $this->auditLog->log('LOGIN_FAILED', "Failed login attempt for {$email}", null);
+            // Audit logging must never prevent the user from receiving the
+            // appropriate authentication response.
+            try {
+                $this->auditLog->log('LOGIN_FAILED', "Failed login attempt for {$email}", null);
+            } catch (\Throwable $e) {
+                error_log('Unable to write failed-login audit entry: ' . $e->getMessage());
+            }
             http_response_code(401);
             return response(['error' => 'Invalid credentials'], 401);
         }
@@ -54,7 +60,11 @@ class AuthController {
         $_SESSION['user'] = $user;
         $_SESSION['user_role'] = $user['role'];
 
-        $this->auditLog->log('LOGIN_SUCCESS', "User {$user['email']} logged in", $user['id']);
+        try {
+            $this->auditLog->log('LOGIN_SUCCESS', "User {$user['email']} logged in", $user['id']);
+        } catch (\Throwable $e) {
+            error_log('Unable to write successful-login audit entry: ' . $e->getMessage());
+        }
 
         return response(['success' => true, 'redirect' => url('/dashboard')], 200);
     }

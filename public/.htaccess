@@ -7,5 +7,7 @@
     RewriteCond %{REQUEST_FILENAME} !-d
     
     # Rewrite all requests to index.php
-    RewriteRule ^(.*)$ index.php?/$1 [L]
+    # Preserve the request URI and any original query string. The router reads
+    # REQUEST_URI directly, so it does not need path data injected as a query.
+    RewriteRule ^ index.php [L,QSA]
 </IfModule>

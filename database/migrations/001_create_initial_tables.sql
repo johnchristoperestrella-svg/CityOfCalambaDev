@@ -196,7 +196,7 @@ INSERT IGNORE INTO `role_permissions` (`role`, `permissions`) VALUES
 
 -- Insert Default Admin User
 INSERT IGNORE INTO `users` (`email`, `password`, `name`, `role`, `status`) VALUES 
-('admin@calamba.gov.ph', '$2y$10$5x.HQS0qCrZLqWXc.n1Z4eF7qOe5BuvW3RXZPvSP0y4r.Y0YZpUXK', 'City Administrator', 'City Administrator', 'active');
+('admin@calamba.gov.ph', '$2y$10$g0j9XEx02TieyGK.AlD4se3EIGUlTmIKZeRScnnDrG6JbDjDASjOy', 'City Administrator', 'City Administrator', 'active');
 
 -- Insert Sample Barangays
 INSERT IGNORE INTO `barangays` (`name`, `population`, `area`, `chairman`, `contact`) VALUES 
